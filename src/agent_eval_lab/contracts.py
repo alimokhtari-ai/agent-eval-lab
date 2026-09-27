@@ -33,6 +33,11 @@ class Task:
     max_retries: int | None = None
     tags: tuple[str, ...] = ()
     metadata: Mapping[str, JsonValue] = field(default_factory=dict)
+    required_tools: tuple[str, ...] = ()
+    expected_tool_sequence: tuple[str, ...] = ()
+    max_tool_calls: int | None = None
+    requires_approval: bool = False
+    requires_escalation: bool = False
 
     @property
     def prompt(self) -> str:

@@ -1,0 +1,6 @@
+{
+  "adapter": {
+    "provider": "reference-support",
+    "model": "support-ops-rule-runtime"
+  }
+}

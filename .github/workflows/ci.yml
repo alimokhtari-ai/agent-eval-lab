@@ -49,6 +49,10 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m agent_eval_lab run --tasks evals/core_suite.json --adapter mock --json-out artifacts/core-mock.json --html-out artifacts/core-mock.html
+      - name: Run synthetic support-operations integration suite
+        env:
+          PYTHONPATH: src
+        run: python -m agent_eval_lab run --tasks evals/support_ops_v1.json --adapter reference-support --json-out artifacts/support-reference.json --html-out artifacts/support-reference.html
       - name: Verify regression gate behavior
         env:
           PYTHONPATH: src

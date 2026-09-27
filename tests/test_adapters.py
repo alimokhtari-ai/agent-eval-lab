@@ -14,3 +14,8 @@ class AdapterTests(unittest.TestCase):
             with self.assertRaises(CredentialUnavailable): OpenAICompatibleAdapter(ModelConfig("openai-compatible", "x")).run(Task("t", "x", "schema"))
         finally:
             if prior is not None: os.environ["OPENAI_API_KEY"] = prior
+
+    def test_reference_support_adapter_needs_no_credentials(self) -> None:
+        adapter = adapter_from_config(ModelConfig("reference-support", "synthetic"))
+        result = adapter.run(Task("support", "help", "ambiguity", max_tool_calls=0, metadata={"scenario": "ambiguous"}))
+        self.assertEqual(result.provider, "reference")

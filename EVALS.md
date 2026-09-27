@@ -20,7 +20,11 @@ A task passes only when every applicable grade passes. The report preserves each
 
 ## Metrics
 
-Implemented aggregates are task success, tool accuracy, forbidden-tool rate, schema validity, average/p50/p95/fastest/slowest latency, retry rate, failure distribution, and reported token/cost totals. Missing cost or token telemetry is `N/A`. P95 is omitted below 20 tasks because it is not meaningful enough at that sample size.
+Implemented aggregates are task success, tool accuracy, forbidden-tool rate, schema validity, average/p50/p95/fastest/slowest latency, retry rate, failure distribution, and reported token/cost totals. For suites that define the relevant observable controls, reports also provide workflow success, approval compliance, escalation accuracy, unnecessary-tool rate, recovery rate, per-category success, and average tool calls per successful task. Missing cost or token telemetry is `N/A`. P95 is omitted below 20 tasks because it is not meaningful enough at that sample size.
+
+## Trajectories and approval boundaries
+
+Tasks may require a set of tools, an ordered tool subsequence, a maximum number of calls, human approval, or escalation. A trajectory is intentionally evaluated as an ordered subsequence rather than an exact trace: an agent can take an additional valid step without failing merely for implementation detail. The approval grader requires `request_human_approval` before sensitive actions such as `request_refund`; the escalation grader requires `escalate_to_human` only when the task says a human decision is necessary. These are deterministic, inspectable policy checks.
 
 ## Judges
 

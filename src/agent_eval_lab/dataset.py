@@ -48,17 +48,27 @@ def task_from_mapping(item: Any) -> Task:
     retries = item.get("max_retries")
     if retries is not None and (not isinstance(retries, int) or isinstance(retries, bool) or retries < 0):
         raise DatasetValidationError(f"Task {task_id!r}: max_retries must be a non-negative integer.")
+    max_tool_calls = item.get("max_tool_calls")
+    if max_tool_calls is not None and (not isinstance(max_tool_calls, int) or isinstance(max_tool_calls, bool) or max_tool_calls < 0):
+        raise DatasetValidationError(f"Task {task_id!r}: max_tool_calls must be a non-negative integer.")
+    for field in ("requires_approval", "requires_escalation"):
+        if field in item and not isinstance(item[field], bool):
+            raise DatasetValidationError(f"Task {task_id!r}: {field} must be a boolean.")
     metadata = item.get("metadata", {})
     if not isinstance(metadata, dict):
         raise DatasetValidationError(f"Task {task_id!r}: metadata must be an object.")
     return Task(
         id=task_id, input=input_text, category=category, expected_tool=expected_tool,
+        required_tools=_strings(item.get("required_tools"), "required_tools", task_id),
+        expected_tool_sequence=_strings(item.get("expected_tool_sequence"), "expected_tool_sequence", task_id),
         allowed_tools=_strings(item.get("allowed_tools"), "allowed_tools", task_id),
         forbidden_tools=_strings(item.get("forbidden_tools"), "forbidden_tools", task_id),
         required_output_fields=_strings(item.get("required_output_fields", item.get("required_output_keys")), "required_output_fields", task_id),
         output_schema=schema, max_latency_ms=float(item["max_latency_ms"]) if item.get("max_latency_ms") is not None else None,
         timeout_seconds=float(item["timeout_seconds"]) if item.get("timeout_seconds") is not None else None,
-        max_retries=retries, tags=_strings(item.get("tags"), "tags", task_id), metadata=metadata,
+        max_retries=retries, max_tool_calls=max_tool_calls,
+        requires_approval=bool(item.get("requires_approval", False)), requires_escalation=bool(item.get("requires_escalation", False)),
+        tags=_strings(item.get("tags"), "tags", task_id), metadata=metadata,
     )
 
 

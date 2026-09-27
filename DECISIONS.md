@@ -23,3 +23,7 @@ The system records adapter-reported tokens and cost but does not hard-code volat
 ## Direction-aware regression gates
 
 Relative regression is not symmetric: a lower success rate is harmful, while higher latency is harmful. Policies therefore declare direction and accept only per-task metrics with a defined interpretation. Absolute ceilings remain available for safety invariants such as zero forbidden actions. Ambiguous rules are configuration errors, not silently guessed behavior.
+
+## Reference agent is an integration subject
+
+The Support Operations runtime proves the framework against iterative tool use, policy boundaries, and controlled faults without making Agent Eval Lab an agent framework. It is deterministic, synthetic, and replaceable through the same adapter protocol as user agents. Its sample results are intentionally labeled integration evidence, never model performance.

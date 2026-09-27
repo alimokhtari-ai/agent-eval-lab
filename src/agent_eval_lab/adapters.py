@@ -80,10 +80,9 @@ class _HttpAdapter:
             with urlopen(request, timeout=self.config.timeout_seconds) as response:  # nosec B310: endpoint is explicit user config
                 return json.loads(response.read().decode())
         except HTTPError as exc:
-            body = exc.read().decode(errors="replace")[:500]
             if exc.code in {408, 429, 500, 502, 503, 504}:
-                raise RetryableAgentError(f"HTTP {exc.code}: {body}") from exc
-            raise RuntimeError(f"HTTP {exc.code}: {body}") from exc
+                raise RetryableAgentError(f"HTTP {exc.code} from provider endpoint") from exc
+            raise RuntimeError(f"HTTP {exc.code} from provider endpoint") from exc
         except URLError as exc:
             raise RetryableAgentError(f"network error: {exc.reason}") from exc
 
@@ -102,7 +101,7 @@ class OpenAICompatibleAdapter(_HttpAdapter):
     key_environment, provider = "OPENAI_API_KEY", "openai-compatible"
     def run(self, task: Task) -> AgentResult:
         endpoint = self.config.endpoint or "https://api.openai.com/v1/chat/completions"
-        tools = [{"type": "function", "function": {"name": tool, "description": "Evaluation tool"}} for tool in task.allowed_tools]
+        tools = [{"type": "function", "function": {"name": tool, "description": "Evaluation tool", "parameters": {"type": "object", "properties": {}}}} for tool in task.allowed_tools]
         payload: dict[str, Any] = {"model": self.config.model, "temperature": self.config.temperature, "messages": [{"role": "user", "content": task.input}]}
         if self.config.max_tokens is not None: payload["max_tokens"] = self.config.max_tokens
         if tools: payload["tools"] = tools
@@ -130,11 +129,11 @@ class AnthropicAdapter(_HttpAdapter):
 class GeminiAdapter(_HttpAdapter):
     key_environment, provider = "GEMINI_API_KEY", "gemini"
     def run(self, task: Task) -> AgentResult:
-        endpoint = self.config.endpoint or f"https://generativelanguage.googleapis.com/v1beta/models/{self.config.model}:generateContent?key={self._key()}"
+        endpoint = self.config.endpoint or f"https://generativelanguage.googleapis.com/v1beta/models/{self.config.model}:generateContent"
         declarations = [{"name": tool, "description": "Evaluation tool", "parameters": {"type": "OBJECT", "properties": {}}} for tool in task.allowed_tools]
         payload: dict[str, Any] = {"contents": [{"parts": [{"text": task.input}]}]}
         if declarations: payload["tools"] = [{"functionDeclarations": declarations}]
-        data = self._post(endpoint, {}, payload)
+        data = self._post(endpoint, {"x-goog-api-key": self._key()}, payload)
         parts, usage = data["candidates"][0]["content"].get("parts", []), data.get("usageMetadata", {})
         text = "\n".join(part.get("text", "") for part in parts if "text" in part) or None
         calls = tuple(ToolCall(part["functionCall"]["name"], part["functionCall"].get("args", {}), sequence=index) for index, part in enumerate(parts) if "functionCall" in part)
@@ -151,8 +150,9 @@ def _json_object(value: str | None) -> dict[str, Any]:
 
 
 def adapter_from_config(config: ModelConfig) -> Any:
-    providers = {"mock": DeterministicMockAgent, "openai-compatible": OpenAICompatibleAdapter, "anthropic": AnthropicAdapter, "gemini": GeminiAdapter}
+    from .support_ops import ReferenceSupportOpsAgent
+    providers = {"mock": DeterministicMockAgent, "reference-support": ReferenceSupportOpsAgent, "openai-compatible": OpenAICompatibleAdapter, "anthropic": AnthropicAdapter, "gemini": GeminiAdapter}
     try:
-        return providers[config.provider](config) if config.provider != "mock" else DeterministicMockAgent()
+        return providers[config.provider](config) if config.provider not in {"mock", "reference-support"} else providers[config.provider]()
     except KeyError as exc:
         raise ValueError(f"Unknown adapter provider {config.provider!r}.") from exc

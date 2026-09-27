@@ -63,7 +63,7 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
     def run_options(target: argparse.ArgumentParser) -> None:
         target.add_argument("--tasks", type=Path, required=True, help="Versioned JSON task suite")
-        target.add_argument("--adapter", choices=("mock", "openai-compatible", "anthropic", "gemini"), default="mock")
+        target.add_argument("--adapter", choices=("mock", "reference-support", "openai-compatible", "anthropic", "gemini"), default="mock")
         target.add_argument("--model"); target.add_argument("--endpoint"); target.add_argument("--timeout", type=float, default=30); target.add_argument("--retries", type=int, default=0)
         target.add_argument("--config", type=Path, help="JSON adapter configuration")
         target.add_argument("--json-out", type=Path); target.add_argument("--html-out", type=Path)

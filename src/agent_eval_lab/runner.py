@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from time import perf_counter
 from typing import Iterable
 
@@ -60,7 +60,7 @@ def evaluate_task(adapter: AgentAdapter, task: Task, graders: Iterable[Grader] =
     duration_ms = (perf_counter() - started) * 1000
     # Adapter retries and runner retries are both visible in a single normalized count.
     if attempts > 1:
-        result = AgentResult(**{**result.__dict__, "retry_count": result.retry_count + attempts - 1})
+        result = replace(result, retry_count=result.retry_count + attempts - 1)
     grade_results = tuple(grader.grade(task, result, duration_ms, None) for grader in graders)
     return EvaluationRecord(task, duration_ms, result, grade_results, None, attempts)
 

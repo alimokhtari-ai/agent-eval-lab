@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.3.0 — 2026-09-27
+
+### Added
+
+- a replaceable, bounded Support Operations reference agent with deterministic synthetic tools, retries, approval boundaries, and escalation;
+- a 75-task versioned integration suite covering realistic tool, trajectory, safety, ambiguity, and recovery behavior;
+- deterministic trajectory, required-tool, call-budget, approval, and escalation graders; and
+- domain-aware report metrics and a Support Operations engineering case study.
+
+### Changed
+
+- report tables now expose task category and observed tool trajectory;
+- provider HTTP errors no longer copy response bodies into report-visible errors; and
+- Gemini keys are sent in the documented request header rather than embedded in an endpoint URL.
+
 ## 0.2.1 — 2026-09-27
 
 ### Fixed

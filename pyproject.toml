@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-eval-lab"
-version = "0.2.1"
+version = "0.3.0"
 description = "Provider-neutral, deterministic-first evaluation for AI agent behavior"
 requires-python = ">=3.11"
 license = {text = "MIT"}

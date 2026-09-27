@@ -76,6 +76,17 @@ JSON reports contain task-level grades, configuration-safe metadata, and failure
 
 Regression policies are explicit and direction-aware: success/accuracy metrics are higher-is-better, while latency, cost, retries, and unsafe-action rates are lower-is-better. The included example prevents task-success regression above 2%, forbidden tool calls above zero, and p95 latency growth above 20% when p95 is available. Invalid or ambiguous policy rules fail fast; a zero baseline has defined behavior rather than a divide-by-zero exception.
 
+## Realistic domain evaluation
+
+The core suite validates framework behavior. `evals/support_ops_v1.json` is a separate 75-task synthetic integration suite for a policy-bound support agent: it covers read and low-risk write tools, multi-step trajectories, ambiguous requests, approval-required refunds, escalation, over-action, and deterministic fault recovery. Run the bundled reference subject with no credentials:
+
+```bash
+agent-eval run --tasks evals/support_ops_v1.json --adapter reference-support \
+  --json-out support-reference.json --html-out support-reference.html
+```
+
+Its results validate the framework and reference runtime—not hosted-model quality. The full design and limitations are in the [Support Operations case study](docs/CASE_STUDY_SUPPORT_OPS.md).
+
 ## Security and privacy
 
 Credentials come only from environment variables. Reports redact common fields such as `token`, `password`, `authorization`, and `api_key`; this is defense in depth, not permission to put sensitive traces in source control. Use synthetic fixtures, review reports before sharing, and never commit customer prompts, secrets, or production tool outputs. [Security policy](SECURITY.md).
@@ -92,6 +103,7 @@ Credentials come only from environment variables. Reports redact common fields s
 - [Architecture](ARCHITECTURE.md)
 - [Evaluation methodology](EVALS.md)
 - [Engineering decisions](DECISIONS.md)
+- [Support Operations case study](docs/CASE_STUDY_SUPPORT_OPS.md)
 - [Roadmap](ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
