@@ -22,6 +22,7 @@ classifiers = [
 ]
 
 [project.scripts]
+agent-eval = "agent_eval_lab.cli:main"
 agent-eval-lab = "agent_eval_lab.cli:main"
 
 [tool.setuptools.packages.find]
