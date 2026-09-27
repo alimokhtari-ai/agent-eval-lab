@@ -75,7 +75,7 @@ def build_report(records: list[EvaluationRecord], suite: TaskSuite | None = None
     return redact({
         "format_version": "1.0", "generated_at": datetime.now(UTC).isoformat(), "package_version": __version__,
         "git_commit": _git_commit(), "runtime": {"python": platform.python_version(), "platform": platform.platform()},
-        "suite": asdict(suite) if suite else None, "summary": summary(records), "records": [asdict(record) for record in records],
+        "suite": ({"name": suite.name, "version": suite.version, "description": suite.description, "task_count": len(suite.tasks)} if suite else None), "summary": summary(records), "records": [asdict(record) for record in records],
     })
 
 
