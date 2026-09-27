@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-eval-lab"
+version = "0.1.0"
+description = "Offline-first deterministic evaluation harness for AI agents"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+readme = "README.md"
+
+[project.scripts]
+agent-eval-lab = "agent_eval_lab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
