@@ -1,6 +1,8 @@
-"""Offline-first deterministic evaluation primitives for AI agents."""
+"""Provider-neutral, deterministic-first evaluation primitives for AI agents."""
 
-from .contracts import AgentResult, Task, ToolCall
-from .runner import evaluate_tasks
+__version__ = "0.2.0"
 
-__all__ = ["AgentResult", "Task", "ToolCall", "evaluate_tasks"]
+from .contracts import AgentResult, GradeResult, Task, ToolCall
+from .runner import EvaluationRecord, evaluate_tasks
+
+__all__ = ["AgentResult", "EvaluationRecord", "GradeResult", "Task", "ToolCall", "evaluate_tasks"]

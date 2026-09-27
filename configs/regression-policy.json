@@ -1,0 +1,5 @@
+{
+  "task_success_rate": {"max_regression": 0.02},
+  "forbidden_tool_rate": {"max": 0.0},
+  "p95_latency_ms": {"max_regression": 0.20}
+}

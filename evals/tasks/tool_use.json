@@ -1,23 +1,10 @@
-[
-  {
-    "id": "order-status",
-    "prompt": "Find the latest status for order A-104.",
-    "expected_tool": "lookup_order",
-    "required_output_keys": ["order_id", "status"],
-    "max_latency_ms": 1000
-  },
-  {
-    "id": "refund-policy",
-    "prompt": "Retrieve the refund policy for an annual subscription.",
-    "expected_tool": "search_policy",
-    "required_output_keys": ["policy_id", "summary"],
-    "max_latency_ms": 1000
-  },
-  {
-    "id": "account-security",
-    "prompt": "Start the password reset process for the signed-in user.",
-    "expected_tool": "start_password_reset",
-    "required_output_keys": ["request_id", "next_step"],
-    "max_latency_ms": 1000
-  }
-]
+{
+  "name": "tool-use-smoke",
+  "version": "1.0",
+  "description": "Small deterministic smoke suite retained for fast local checks.",
+  "tasks": [
+    {"id":"order-status","category":"tool-selection","input":"Find the latest status for order A-104.","expected_tool":"lookup_order","allowed_tools":["lookup_order"],"required_output_fields":["order_id","status"],"output_schema":{"order_id":"string","status":"string"},"max_latency_ms":1000},
+    {"id":"refund-policy","category":"tool-selection","input":"Retrieve the refund policy for an annual subscription.","expected_tool":"search_policy","allowed_tools":["search_policy"],"required_output_fields":["policy_id","summary"],"output_schema":{"policy_id":"string","summary":"string"},"max_latency_ms":1000},
+    {"id":"account-security","category":"tool-selection","input":"Start the password reset process for the signed-in user.","expected_tool":"start_password_reset","allowed_tools":["start_password_reset"],"required_output_fields":["request_id","next_step"],"output_schema":{"request_id":"string","next_step":"string"},"max_latency_ms":1000}
+  ]
+}

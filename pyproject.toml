@@ -4,11 +4,22 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-eval-lab"
-version = "0.1.0"
-description = "Offline-first deterministic evaluation harness for AI agents"
+version = "0.2.0"
+description = "Provider-neutral, deterministic-first evaluation for AI agent behavior"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 readme = "README.md"
+keywords = ["ai-agents", "agent-evaluation", "llm-evaluation", "reliability", "tool-use"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
 
 [project.scripts]
 agent-eval-lab = "agent_eval_lab.cli:main"

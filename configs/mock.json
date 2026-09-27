@@ -1,0 +1,8 @@
+{
+  "adapter": {
+    "provider": "mock",
+    "model": "deterministic-v1",
+    "timeout_seconds": 30,
+    "retries": 0
+  }
+}
