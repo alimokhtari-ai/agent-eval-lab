@@ -1,13 +1,21 @@
 # Engineering Decisions
 
-## Deterministic graders before LLM judges
+## Provider-neutral core, thin integrations
 
-The first checks are exact and explainable: expected tool, required fields, and latency budget. LLM-as-a-judge can be useful later, but it adds cost and nondeterminism and should not replace basic contract validation.
+Core contracts use only the standard library. OpenAI-compatible, Anthropic, and Gemini adapters normalize HTTP responses at the edge; optional SDKs are not required just to install or test the package.
 
-## Adapter boundary instead of a bundled model SDK
+## Deterministic-first grading
 
-The core intentionally contains no API client and no credentials. This keeps local evaluation safe, avoids vendor lock-in, and makes adapters responsible for model-specific telemetry.
+Tool policy, contracts, retries, and latency are objectively testable and remain code-based. This gives useful failure reasons, avoids spend, and keeps CI reproducible.
 
-## JSON fixtures in version control
+## Offline-first CI
 
-Small, reviewed JSON fixtures make regression changes visible in pull requests. Large, private, or customer-derived datasets belong in a controlled data system, not this repository.
+CI validates a 44-task deterministic suite, reports, package build, and tests without credentials or paid calls. Hosted adapters fail with a clear missing-credential message and are not invoked by CI.
+
+## Static reports
+
+JSON is the portable evidence format; static HTML is deliberately dependency-light, escaped, and reviewable. It is not a dashboard product.
+
+## Cost handling
+
+The system records adapter-reported tokens and cost but does not hard-code volatile pricing. Exact cost requires an adapter/provider source or a clearly versioned external pricing policy.

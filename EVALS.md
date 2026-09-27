@@ -1,26 +1,31 @@
 # Evaluation Methodology
 
-## Task format
+## Suite design
 
-Each task names the expected tool, required structured-output keys, and a latency budget. Fixtures should represent an observable workflow rather than a vague prompt-quality preference.
+`evals/core_suite.json` is `core-agent-behavior` v1.0: 44 synthetic, reviewable tasks covering tool selection, output schemas, retry budgets, permission boundaries, failure handling, latency, ambiguous requests, and adversarial tool selection. Synthetic data makes offline CI safe; it is not a substitute for a domain suite built from reviewed production failure modes.
 
-## Scoring
+Suites are JSON objects with `name`, `version`, and `tasks`. Validation rejects malformed JSON, duplicate ids, missing core fields, invalid type names, invalid budgets, and malformed tool lists. A task expresses observable expectations, not vague response preference.
 
-Each task receives three deterministic checks:
+## Grading
 
-1. **Tool selection** — did the agent call the expected tool?
-2. **Output contract** — does the structured output include every required key?
-3. **Latency** — did the task finish within its stated budget?
+Default graders are deterministic:
 
-A task passes only when all three checks pass and the adapter did not raise an exception.
+- expected tool selection;
+- allowed and forbidden tool policy;
+- required output fields and basic type contracts;
+- latency and retry budgets; and
+- visible error behavior.
 
-## Reproducibility
+A task passes only when every applicable grade passes. The report preserves each individual reason; aggregate rates never replace failure evidence.
 
-The included mock adapter is deterministic and runs without network access or credentials. It validates the harness itself. Real adapters should record model identifier, configuration, task fixture revision, and any measured token or cost telemetry.
+## Metrics
 
-## Limitations
+Implemented aggregates are task success, tool accuracy, forbidden-tool rate, schema validity, average/p50/p95/fastest/slowest latency, retry rate, failure distribution, and reported token/cost totals. Missing cost or token telemetry is `N/A`. P95 is omitted below 20 tasks because it is not meaningful enough at that sample size.
 
-- This repository does not claim real-world LLM quality or benchmark rankings.
-- A passing contract does not prove an answer is factually correct.
-- Latency results are meaningful only in the deployment environment where they are measured.
-- Sensitive production prompts and customer data should never be committed as fixtures.
+## Judges
+
+LLM-as-judge belongs only where a criterion cannot be checked objectively, such as semantic completeness. It is not bundled as a default grader. A future judge integration must record provider, model, rubric, rationale, threshold, and repeat-run methodology; judges can exhibit self-preference, prompt sensitivity, stochasticity, and model correlation. They are evidence, not ground truth.
+
+## Reproducibility and interpretation
+
+Reports record timestamp, package version, git commit when available, suite metadata, runtime environment, task-level grades, and safe adapter telemetry. Do not compare tiny runs as provider rankings. Any real comparison must state the suite, configuration, date, model, sample size, and limitations narrowly.

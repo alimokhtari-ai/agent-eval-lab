@@ -2,80 +2,96 @@
 
 [![CI](https://github.com/alimokhtari-ai/agent-eval-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/alimokhtari-ai/agent-eval-lab/actions/workflows/ci.yml)
 
-An offline-first evaluation harness for testing whether an AI agent selects the right tool, returns valid structured data, respects latency budgets, and fails transparently.
+Provider-neutral, deterministic-first evaluation for AI-agent behavior. It turns an agent run into inspectable evidence: tool calls, output contracts, permission boundaries, retries, latency, telemetry when available, failure taxonomy, and regression gates.
 
-It is deliberately small: a reproducible foundation for agent evaluation, not a benchmark with invented model scores.
+It is not a model leaderboard. The included mock suite validates the platform itself; it does not claim anything about a hosted model.
 
-## Why this exists
+## Why
 
-An agent demo is not evidence of reliability. Before connecting an agent to real tools, teams need a repeatable way to test task success, tool choice, output contracts, latency, errors, and estimated cost.
+An agent demo does not establish reliability. Before connecting an agent to meaningful tools, teams need repeatable answers to: did it choose an allowed tool, return a usable contract, stay within a latency or retry budget, recover safely, and regress relative to a known baseline?
+
+## Quick start
+
+Python 3.11+; core has no runtime dependencies.
+
+```bash
+git clone https://github.com/alimokhtari-ai/agent-eval-lab
+cd agent-eval-lab
+python -m pip install .
+agent-eval validate evals/core_suite.json
+agent-eval run --tasks evals/core_suite.json --adapter mock \
+  --json-out reports/mock.json --html-out reports/mock.html
+```
+
+The versioned core suite has 44 synthetic tasks across tool selection, structured outputs, permission boundaries, retries, failure handling, latency, ambiguous requests, and adversarial choices. See the committed [mock JSON report](examples/reports/core-mock.json) and [HTML report](examples/reports/core-mock.html).
 
 ## What it evaluates
 
-- expected tool selection;
-- required structured-output fields;
-- latency budgets;
-- exception handling and failure visibility; and
-- optional token and cost telemetry supplied by an adapter.
+- expected, allowed, forbidden, and no-tool behavior;
+- required fields and simple structured-output type contracts;
+- latency and retry budgets;
+- adapter errors and controlled fault recovery;
+- tokens and estimated cost only when an adapter reports them; and
+- transparent regression policies for CI.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  T[Task fixtures] --> R[Evaluation runner]
-  A[Agent adapter] --> R
+  D[Versioned task suite] --> A[Agent adapter]
+  A --> R[Execution runtime]
   R --> G[Deterministic graders]
-  G --> S[Per-task scores]
-  S --> P[Terminal + JSON report]
-  P --> D[Regression decision]
+  G --> M[Metrics + failure taxonomy]
+  M --> O[CLI / JSON / HTML]
+  O --> C[Regression gates]
 ```
 
-## Quick start
+Provider code is isolated behind `AgentAdapter`; core task definitions and graders never import an SDK. The project includes standard-library HTTP adapters for OpenAI-compatible APIs, Anthropic, and Gemini. They require their respective environment variable (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`) only when used. No provider calls run in CI.
 
-Requires Python 3.11+ and no third-party packages.
+## Commands
 
 ```bash
-git clone https://github.com/alimokhtari-ai/agent-eval-lab
-cd agent-eval-lab
-PYTHONPATH=src python -m agent_eval_lab --tasks evals/tasks/tool_use.json
+# Validate fixtures and receive actionable schema errors
+agent-eval validate evals/core_suite.json
+
+# Run one adapter and write portable evidence
+agent-eval run --tasks evals/core_suite.json --adapter mock --json-out candidate.json --html-out candidate.html
+
+# Run multiple JSON adapter configurations
+agent-eval benchmark --tasks evals/core_suite.json --config configs/mock.json --output-dir reports
+
+# Enforce explicit regression policy; non-zero exit on failure
+agent-eval compare baseline.json candidate.json --policy configs/regression-policy.json
 ```
 
-Run the tests:
+`examples/custom_adapter.py` shows the complete custom-adapter surface. It is intentionally small: `run(task) -> AgentResult`.
 
-```bash
-PYTHONPATH=src python -m unittest discover -s tests -v
-```
+## Deterministic first; judge second
 
-## Example output
+Tool names, tool permissions, schema fields, types, retries, and latency are checked in code. LLM-as-judge is deliberately not required for basic operation: it is appropriate only for irreducibly semantic criteria and must carry its own provider, rubric, rationale, and reproducibility limitations. See [EVALS.md](EVALS.md).
 
-The included deterministic mock adapter exercises the harness without an API key. Its result is a test fixture, **not** a claim about a production LLM:
+## Reports and regressions
 
-```text
-Tasks evaluated: 3
-Tasks passed: 3
-Task success rate: 100.0%
-Average latency: <measured locally>
-Token and cost telemetry: not reported by this adapter
-```
+JSON reports contain task-level grades, configuration-safe metadata, and failure reasons. Static HTML reports escape task content and redact common secret-bearing fields. Aggregate values are shown only when observed: cost and token metrics are `N/A`, not zero, when adapters do not provide them; p95 is withheld for samples smaller than 20.
 
-## Add a real agent
+Regression policies are explicit. The included example prevents task-success regression above 2%, forbidden tool calls above zero, and p95 latency growth above 20% when p95 is available.
 
-Implement the `AgentAdapter` protocol from `agent_eval_lab.contracts`. The adapter receives a `Task` and returns an `AgentResult`, including tool calls, structured output, optional token counts, optional estimated cost, and retry count.
+## Security and privacy
 
-This separation keeps model SDKs, credentials, and production integrations out of the evaluation core.
+Credentials come only from environment variables. Reports redact common fields such as `token`, `password`, `authorization`, and `api_key`; this is defense in depth, not permission to put sensitive traces in source control. Use synthetic fixtures, review reports before sharing, and never commit customer prompts, secrets, or production tool outputs. [Security policy](SECURITY.md).
 
-## Evaluation methodology
+## Limitations
 
-See [EVALS.md](EVALS.md) for task design, scoring, reproducibility, and limitations.
+- The bundled provider adapters are deliberately thin integration examples, not a complete agent runtime.
+- Mock results measure framework behavior, never a model's quality.
+- Cost is reported only when supplied by an adapter; pricing is not silently guessed.
+- The core suite is synthetic and should be supplemented with a versioned domain-specific suite before production use.
 
-## Engineering notes
+## Documentation
 
-- [ARCHITECTURE.md](ARCHITECTURE.md)
-- [DECISIONS.md](DECISIONS.md)
-- [SECURITY.md](SECURITY.md)
-- [CONTRIBUTING.md](CONTRIBUTING.md)
-- [ROADMAP.md](ROADMAP.md)
-
-## Status
-
-The repository runs tests, a compilation check, and an offline evaluation smoke test on every push and pull request.
+- [Architecture](ARCHITECTURE.md)
+- [Evaluation methodology](EVALS.md)
+- [Engineering decisions](DECISIONS.md)
+- [Roadmap](ROADMAP.md)
+- [Contributing](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
