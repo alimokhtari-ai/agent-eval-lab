@@ -1,0 +1,7 @@
+{
+  "summary": {
+    "forbidden_tool_rate": 0.01,
+    "p95_latency_ms": 121.0,
+    "task_success_rate": 0.97
+  }
+}

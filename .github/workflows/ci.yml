@@ -49,6 +49,12 @@ jobs:
         env:
           PYTHONPATH: src
         run: python -m agent_eval_lab run --tasks evals/core_suite.json --adapter mock --json-out artifacts/core-mock.json --html-out artifacts/core-mock.html
+      - name: Verify regression gate behavior
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m agent_eval_lab compare examples/regression/baseline.json examples/regression/good-candidate.json --policy configs/regression-policy.json
+          ! python -m agent_eval_lab compare examples/regression/baseline.json examples/regression/bad-candidate.json --policy configs/regression-policy.json
 
   package:
     runs-on: ubuntu-latest

@@ -29,3 +29,7 @@ LLM-as-judge belongs only where a criterion cannot be checked objectively, such 
 ## Reproducibility and interpretation
 
 Reports record timestamp, package version, git commit when available, suite metadata, runtime environment, task-level grades, and safe adapter telemetry. Do not compare tiny runs as provider rankings. Any real comparison must state the suite, configuration, date, model, sample size, and limitations narrowly.
+
+## Regression policy semantics
+
+Regression gates operate on report summaries. Relative gates require an explicit direction and are restricted to stable per-task metrics: `task_success_rate`, `tool_accuracy`, and `structured_output_validity` are `higher_is_better`; `forbidden_tool_rate`, latency metrics, `retry_rate`, and `average_cost_per_task_usd` are `lower_is_better`. A `max` rule expresses an absolute ceiling, which is useful for a zero-tolerance safety rate. The implementation evaluates against the tolerated boundary instead of dividing by the baseline, so zero baselines remain meaningful. Counts and totals are intentionally not eligible for relative gates because task count and telemetry availability change their interpretation.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 — 2026-09-27
+
+### Fixed
+
+- corrected regression-gate semantics with explicit higher-is-better and lower-is-better directions;
+- made zero-baseline gates deterministic without division-based edge cases; and
+- added end-to-end CLI gate tests plus CI checks for both accepted and rejected candidates.
+
 ## 0.2.0 — 2026-09-27
 
 ### Added

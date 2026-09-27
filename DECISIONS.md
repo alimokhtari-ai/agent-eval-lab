@@ -19,3 +19,7 @@ JSON is the portable evidence format; static HTML is deliberately dependency-lig
 ## Cost handling
 
 The system records adapter-reported tokens and cost but does not hard-code volatile pricing. Exact cost requires an adapter/provider source or a clearly versioned external pricing policy.
+
+## Direction-aware regression gates
+
+Relative regression is not symmetric: a lower success rate is harmful, while higher latency is harmful. Policies therefore declare direction and accept only per-task metrics with a defined interpretation. Absolute ceilings remain available for safety invariants such as zero forbidden actions. Ambiguous rules are configuration errors, not silently guessed behavior.

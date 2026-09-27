@@ -74,7 +74,7 @@ Tool names, tool permissions, schema fields, types, retries, and latency are che
 
 JSON reports contain task-level grades, configuration-safe metadata, and failure reasons. Static HTML reports escape task content and redact common secret-bearing fields. Aggregate values are shown only when observed: cost and token metrics are `N/A`, not zero, when adapters do not provide them; p95 is withheld for samples smaller than 20.
 
-Regression policies are explicit. The included example prevents task-success regression above 2%, forbidden tool calls above zero, and p95 latency growth above 20% when p95 is available.
+Regression policies are explicit and direction-aware: success/accuracy metrics are higher-is-better, while latency, cost, retries, and unsafe-action rates are lower-is-better. The included example prevents task-success regression above 2%, forbidden tool calls above zero, and p95 latency growth above 20% when p95 is available. Invalid or ambiguous policy rules fail fast; a zero baseline has defined behavior rather than a divide-by-zero exception.
 
 ## Security and privacy
 
